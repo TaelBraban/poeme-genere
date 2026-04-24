@@ -19,4 +19,6 @@ ils suivent le courant (au sens maritime mais aussi sociale)
 Les bouées dérivantes fournissent des info pour les prévisions météorologiques mondiales et régionales, y compris les événements extrêmes, la surveillance de la circulation océanique et les garçons/hommes dérivants permettent par leur propos haineux de mesurer le niveau de liens social, du côté néfaste du manque de contact et isolement, la direction des trends, des récupération et détournement + d'autres facteurs. = donc le côté regroupement information se retrouve dans les deux.
   carte des bouées dérivantes : https://www.ocean-ops.org/maps/static/?t=OceanOPS&displayedMap=DBCP_ALL# 
   carte bouée dérivantes françaises avec plus de données diff : https://esurfmar.meteo.fr/cgi-bin/blackpos_surfmar.cgi
+
+  groupe incel reddit : https://www.reddit.com/r/IncelExit/
   
