@@ -67,7 +67,7 @@ Drifter ID Card          Transmitting
   
   Range 
   
-  
+  timestamp milisecnde depuis une date 1970 doc date de deploy
   
   
 
