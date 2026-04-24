@@ -21,4 +21,6 @@ Les bouées dérivantes fournissent des info pour les prévisions météorologiq
   carte bouée dérivantes françaises avec plus de données diff : https://esurfmar.meteo.fr/cgi-bin/blackpos_surfmar.cgi
 
   groupe incel reddit : https://www.reddit.com/r/IncelExit/
+  ya pas bcp de groupe ouvertement incel hors celui ci 
+  comment scraper le username et les infos d'un post qui aurait un mot clef particulier comme : déviant, dérive, seule, tempête, sous les flots, isolée, garçon(boy) = en anglais si c'est sur incelExit 
   
