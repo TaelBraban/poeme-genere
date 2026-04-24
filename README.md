@@ -52,12 +52,19 @@ Drifter ID Card          Transmitting
 
 
   Boy id:   (id)  
+  
   Boy name: (author)
+  
   Boy type: 
+  
   Deployment: 
+  
   Propeled/Dragged to shore: (Dans treatment_tags le nombre des ups) 
+  
   transmitters:   (num_comments)
+  
   Missing Value 
+  
   Range 
   
   
