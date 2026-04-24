@@ -25,7 +25,11 @@ Les bouées dérivantes fournissent des info pour les prévisions météorologiq
   ya pas bcp de groupe ouvertement incel hors celui ci 
   comment scraper le username et les infos d'un post qui aurait un mot clef particulier comme : déviant, dérive, seule, tempête, sous les flots, isolée, 
   garçon(boy) = en anglais si c'est sur incelExit 
-  
+
+
+  rôle du l'utilisateur :
+
+  banque de donnée de mots à choisir
 comment relier les 2/ comment relier les informations :
 
 WMO number : j'ai accès à ces données pour les bouées en temps réel
