@@ -61,13 +61,18 @@ Drifter ID Card          Transmitting
   
   Propeled/Dragged to shore: (Dans treatment_tags le nombre des ups) 
   
+  
+
+  transmitting on the : (created_utc (à convertir en heure locale))
+  
   transmitters:   (num_comments)
+
   
   Missing Value 
   
   Range 
   
-  timestamp milisecnde depuis une date 1970 doc date de deploy
+  
   
   
 
