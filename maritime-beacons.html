@@ -472,7 +472,7 @@ function connect() {
   }
   localStorage.setItem('ais-api-key', key);
   setStatus('connecting');
-  /*
+  //
   ws = new WebSocket('wss://stream.aisstream.io/v0/stream');
 
   ws.onopen = () => {
@@ -486,10 +486,14 @@ function connect() {
     document.getElementById('connect-btn').classList.add('connected');
   };
 
-  ws.onmessage = e => {
+  ws.onmessage = async e => {
     msgCount++;
     document.getElementById('cnt-msgs').textContent = msgCount;
-    try { dispatch(JSON.parse(e.data)); } catch (_) {}
+    try {
+      let decodedBlob = await e.data.text(),
+        aisMessage = JSON.parse(decodedBlob);
+      dispatch(aisMessage); 
+    } catch (_) {}
   };
 
   ws.onclose = () => {
@@ -501,7 +505,7 @@ function connect() {
 
   ws.onerror = () => setStatus('error');
 
-  */
+  /*
   const socket = new WebSocket("wss://stream.aisstream.io/v0/stream");
   socket.addEventListener("open", (_) => {
     const subscriptionMessage = {
@@ -517,8 +521,9 @@ function connect() {
     socket.send(JSON.stringify(subscriptionMessage));
   });
 
-  socket.addEventListener("message", (event) => {
-    let aisMessage = JSON.parse(event.data);
+  socket.addEventListener("message", async (event) => {
+    const decodedBlob = await event.data.text();
+    let aisMessage = JSON.parse(decodedBlob);
     if (aisMessage["MessageType"] === "PositionReport") {
       let positionReport = aisMessage["Message"]["PositionReport"];
       console.log(
@@ -526,7 +531,7 @@ function connect() {
       );
     }
   });
-
+  */
 }
 
 function dispatch(msg) {
