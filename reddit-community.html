@@ -123,6 +123,105 @@
     }
 
     .error { color: #a04040; font-size: 0.8rem; }
+
+    /* Vue par auteur */
+    .view-toggle {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+    }
+    .view-toggle button {
+      border-radius: 0;
+      letter-spacing: 0.08em;
+    }
+    .view-toggle button.active {
+      background: #222;
+      border-color: #888;
+      color: #fff;
+    }
+
+    .author-group {
+      border: 1px solid #1e1e1e;
+      margin-bottom: 1.5rem;
+    }
+
+    .author-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #1a1a1a;
+      flex-shrink: 0;
+      border: 1px solid #2a2a2a;
+    }
+
+    .author-avatar-placeholder {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    .author-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: #0f0f0f;
+      cursor: pointer;
+      user-select: none;
+    }
+    .author-header:hover { background: #141414; }
+
+    .author-name {
+      font-size: 0.85rem;
+      color: #ccc;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .author-info {
+      font-size: 0.7rem;
+      color: #555;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      margin-top: 0.2rem;
+    }
+    .author-info .karma { color: #7a7a7a; }
+    .author-info .age   { color: #666; }
+    .author-info .loading { font-style: italic; }
+
+    .author-post-count {
+      margin-left: auto;
+      font-size: 0.7rem;
+      color: #555;
+      white-space: nowrap;
+      padding-top: 0.2rem;
+    }
+
+    .author-posts {
+      padding: 0.5rem 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .author-posts.collapsed { display: none; }
+
+    .author-posts .post {
+      border-left: 2px solid #222;
+      padding-left: 0.75rem;
+      margin: 0;
+    }
+
+    .collapse-icon { font-size: 0.65rem; color: #444; margin-top: 0.25rem; }
   </style>
 </head>
 <body>
@@ -143,6 +242,11 @@
   <button id="export-btn" style="display:none">Exporter JSON</button>
 </div>
 
+<div class="view-toggle">
+  <button id="view-list" class="active">Liste</button>
+  <button id="view-authors">Par auteur</button>
+</div>
+
 <div id="status">—</div>
 <div id="results"></div>
 
@@ -150,18 +254,13 @@
   const PROXY = 'https://www.reddit.com';
 
   let lastData = [];
+  let currentView = 'list'; // 'list' | 'authors'
+  let currentKws  = [];
 
+  // ── utilitaires ────────────────────────────────────────────────
   function keywords() {
     return document.getElementById('keywords').value
-      .split(',')
-      .map(k => k.trim().toLowerCase())
-      .filter(Boolean);
-  }
-
-  function highlight(text, kws) {
-    if (!kws.length) return escHtml(text);
-    const pattern = new RegExp(`(${kws.map(escRegex).join('|')})`, 'gi');
-    return escHtml(text).replace(pattern, '<mark class="highlight">$1</mark>');
+      .split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
   }
 
   function escHtml(str) {
@@ -172,84 +271,45 @@
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
+  function highlight(text, kws) {
+    if (!kws.length) return escHtml(text);
+    const pattern = new RegExp(`(${kws.map(escRegex).join('|')})`, 'gi');
+    return escHtml(text).replace(pattern, '<mark class="highlight">$1</mark>');
+  }
+
   function matchesKeywords(post, kws) {
     if (!kws.length) return true;
     const haystack = (post.title + ' ' + post.selftext).toLowerCase();
     return kws.some(k => haystack.includes(k));
   }
 
-  async function fetchReddit() {
-    const sub   = document.getElementById('subreddit').value.trim();
-    const sort  = document.getElementById('sort').value;
-    const limit = Math.min(100, Math.max(1, +document.getElementById('limit').value));
-    const kws   = keywords();
+  function postHTML(post, kws) {
+    const date    = new Date(post.created_utc * 1000).toISOString().slice(0, 10);
+    const body    = post.selftext || '';
+    const hasBody = body.length > 0;
+    return `
+      <div class="post-meta">
+        <span class="author">u/${escHtml(post.author)}</span>
+        &nbsp;·&nbsp;${date}
+        &nbsp;·&nbsp;<span class="score">↑ ${post.score}</span>
+        &nbsp;·&nbsp;${post.num_comments} commentaires
+      </div>
+      <div class="post-title">
+        <a href="https://www.reddit.com${escHtml(post.permalink)}" target="_blank" rel="noopener">
+          ${highlight(post.title, kws)}
+        </a>
+      </div>
+      ${hasBody ? `
+        <div class="post-body" id="body-${post.id}">${highlight(body.slice(0, 800), kws)}${body.length > 800 ? '…' : ''}</div>
+        <span class="toggle-body" data-id="${escHtml(post.id)}" data-full="${escHtml(body)}">▸ lire</span>
+      ` : ''}
+    `;
+  }
 
-    const status  = document.getElementById('status');
-    const results = document.getElementById('results');
-
-    status.textContent  = 'Chargement…';
-    status.className    = '';
-    results.innerHTML   = '';
-    document.getElementById('export-btn').style.display = 'none';
-
-    const url = `${PROXY}/r/${encodeURIComponent(sub)}/${sort}.json?limit=${limit}&raw_json=1`;
-
-    let data;
-    try {
-      const res = await fetch(url, {
-        headers: { 'Accept': 'application/json' }
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      data = await res.json();
-    } catch (err) {
-      status.textContent = `Erreur : ${err.message}`;
-      status.className   = 'error';
-      return;
-    }
-
-    const posts = (data?.data?.children || []).map(c => c.data);
-    const filtered = kws.length ? posts.filter(p => matchesKeywords(p, kws)) : posts;
-
-    lastData = filtered;
-
-    status.textContent = `${filtered.length} post(s) trouvé(s) sur ${posts.length} dans r/${sub}`;
-
-    if (!filtered.length) return;
-
-    filtered.forEach(post => {
-      const el = document.createElement('div');
-      el.className = 'post';
-
-      const date = new Date(post.created_utc * 1000).toISOString().slice(0, 10);
-      const body = post.selftext || '';
-      const hasBody = body.length > 0;
-
-      el.innerHTML = `
-        <div class="post-meta">
-          <span class="author">u/${escHtml(post.author)}</span>
-          &nbsp;·&nbsp;${date}
-          &nbsp;·&nbsp;<span class="score">↑ ${post.score}</span>
-          &nbsp;·&nbsp;${post.num_comments} commentaires
-        </div>
-        <div class="post-title">
-          <a href="https://www.reddit.com${escHtml(post.permalink)}" target="_blank" rel="noopener">
-            ${highlight(post.title, kws)}
-          </a>
-        </div>
-        ${hasBody ? `
-          <div class="post-body" id="body-${post.id}">${highlight(body.slice(0, 800), kws)}${body.length > 800 ? '…' : ''}</div>
-          <span class="toggle-body" data-id="${escHtml(post.id)}" data-full="${escHtml(body)}">▸ lire</span>
-        ` : ''}
-      `;
-
-      results.appendChild(el);
-    });
-
-    // toggle expand
-    results.querySelectorAll('.toggle-body').forEach(btn => {
+  function bindToggles(container, kws) {
+    container.querySelectorAll('.toggle-body').forEach(btn => {
       btn.addEventListener('click', () => {
-        const id  = btn.dataset.id;
-        const div = document.getElementById(`body-${id}`);
+        const div = document.getElementById(`body-${btn.dataset.id}`);
         if (div.classList.contains('expanded')) {
           div.classList.remove('expanded');
           btn.textContent = '▸ lire';
@@ -260,12 +320,180 @@
         }
       });
     });
+  }
 
+  // ── vue liste ──────────────────────────────────────────────────
+  function renderList(posts, kws) {
+    const results = document.getElementById('results');
+    results.innerHTML = '';
+    posts.forEach(post => {
+      const el = document.createElement('div');
+      el.className = 'post';
+      el.innerHTML = postHTML(post, kws);
+      results.appendChild(el);
+    });
+    bindToggles(results, kws);
+  }
+
+  // ── vue par auteur ─────────────────────────────────────────────
+  function groupByAuthor(posts) {
+    const map = new Map();
+    posts.forEach(p => {
+      if (!map.has(p.author)) map.set(p.author, []);
+      map.get(p.author).push(p);
+    });
+    // tri décroissant par nombre de posts
+    return [...map.entries()].sort((a, b) => b[1].length - a[1].length);
+  }
+
+  async function fetchAuthorInfo(username) {
+    try {
+      const res = await fetch(`${PROXY}/user/${encodeURIComponent(username)}/about.json?raw_json=1`, {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!res.ok) return null;
+      const json = await res.json();
+      return json?.data || null;
+    } catch { return null; }
+  }
+
+  function authorInfoHTML(info) {
+    if (!info) return '<span class="loading">profil non disponible</span>';
+    const karma   = (info.link_karma + info.comment_karma).toLocaleString('fr');
+    const created = new Date(info.created_utc * 1000);
+    const age     = Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24 * 365));
+    const since   = created.toISOString().slice(0, 7);
+    return `
+      <span class="karma">⬆ ${karma} karma</span>
+      <span class="age">depuis ${since} (${age} an${age > 1 ? 's' : ''})</span>
+      ${info.is_gold ? '<span style="color:#c8a030">✦ premium</span>' : ''}
+    `;
+  }
+
+  async function renderAuthors(posts, kws) {
+    const results = document.getElementById('results');
+    results.innerHTML = '';
+
+    const groups = groupByAuthor(posts);
+
+    groups.forEach(([author, authorPosts]) => {
+      const group = document.createElement('div');
+      group.className = 'author-group';
+
+      const postsId = `posts-${author.replace(/[^a-z0-9_]/gi, '_')}`;
+
+      const avatarId = `avatar-${author.replace(/[^a-z0-9_]/gi, '_')}`;
+      group.innerHTML = `
+        <div class="author-header">
+          <div class="author-avatar-placeholder" id="${avatarId}">◉</div>
+          <div>
+            <div class="author-name">u/${escHtml(author)}</div>
+            <div class="author-info" id="info-${escHtml(author)}">
+              <span class="loading">chargement du profil…</span>
+            </div>
+          </div>
+          <div class="author-post-count">${authorPosts.length} post${authorPosts.length > 1 ? 's' : ''}</div>
+          <div class="collapse-icon">▾</div>
+        </div>
+        <div class="author-posts" id="${postsId}"></div>
+      `;
+
+      const postsContainer = group.querySelector(`#${postsId}`);
+      authorPosts.forEach(post => {
+        const el = document.createElement('div');
+        el.className = 'post';
+        el.innerHTML = postHTML(post, kws);
+        postsContainer.appendChild(el);
+      });
+      bindToggles(postsContainer, kws);
+
+      // collapse/expand au clic sur l'en-tête
+      group.querySelector('.author-header').addEventListener('click', () => {
+        const collapsed = postsContainer.classList.toggle('collapsed');
+        group.querySelector(`#icon-${author.replace(/[^a-z0-9_]/gi, '_')}`) // sécurité
+        document.getElementById(`icon-${author}`)?.textContent == (collapsed ? '▸' : '▾');
+        const icon = group.querySelector('.collapse-icon');
+        icon.textContent = postsContainer.classList.contains('collapsed') ? '▸' : '▾';
+      });
+
+      results.appendChild(group);
+
+      // récupération asynchrone du profil auteur
+      fetchAuthorInfo(author).then(info => {
+        const infoEl   = document.getElementById(`info-${author}`);
+        if (infoEl) infoEl.innerHTML = authorInfoHTML(info);
+
+        const avatarEl = document.getElementById(avatarId);
+        if (avatarEl && info) {
+          const src = (info.snoovatar_img || info.icon_img || '').replace(/&amp;/g, '&');
+          if (src) {
+            const img = document.createElement('img');
+            img.className = 'author-avatar';
+            img.alt = author;
+            img.src = src;
+            img.onerror = () => { img.replaceWith(avatarEl.cloneNode(true)); };
+            avatarEl.replaceWith(img);
+          }
+        }
+      });
+    });
+  }
+
+  // ── render dispatch ────────────────────────────────────────────
+  function render(posts, kws) {
+    if (currentView === 'authors') renderAuthors(posts, kws);
+    else renderList(posts, kws);
+  }
+
+  // ── fetch Reddit ───────────────────────────────────────────────
+  async function fetchReddit() {
+    const sub   = document.getElementById('subreddit').value.trim();
+    const sort  = document.getElementById('sort').value;
+    const limit = Math.min(100, Math.max(1, +document.getElementById('limit').value));
+    const kws   = keywords();
+
+    const status  = document.getElementById('status');
+    const results = document.getElementById('results');
+
+    status.textContent = 'Chargement…';
+    status.className   = '';
+    results.innerHTML  = '';
+    document.getElementById('export-btn').style.display = 'none';
+
+    const url = `${PROXY}/r/${encodeURIComponent(sub)}/${sort}.json?limit=${limit}&raw_json=1`;
+
+    let data;
+    try {
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+    } catch (err) {
+      status.textContent = `Erreur : ${err.message}`;
+      status.className   = 'error';
+      return;
+    }
+
+    const posts    = (data?.data?.children || []).map(c => c.data);
+    const filtered = kws.length ? posts.filter(p => matchesKeywords(p, kws)) : posts;
+
+    lastData    = filtered;
+    currentKws  = kws;
+
+    const authorsCount = new Set(filtered.map(p => p.author)).size;
+    status.textContent = `${filtered.length} post(s) · ${authorsCount} auteur(s) — r/${sub}`;
+
+    if (!filtered.length) return;
+
+    render(filtered, kws);
     document.getElementById('export-btn').style.display = 'inline-block';
   }
 
+  // ── export JSON ────────────────────────────────────────────────
   function exportJSON() {
-    const blob = new Blob([JSON.stringify(lastData, null, 2)], { type: 'application/json' });
+    const grouped = currentView === 'authors'
+      ? Object.fromEntries(groupByAuthor(lastData))
+      : lastData;
+    const blob = new Blob([JSON.stringify(grouped, null, 2)], { type: 'application/json' });
     const a = Object.assign(document.createElement('a'), {
       href: URL.createObjectURL(blob),
       download: `reddit-${document.getElementById('subreddit').value}-${Date.now()}.json`
@@ -273,9 +501,23 @@
     a.click();
   }
 
+  // ── bascule de vue ─────────────────────────────────────────────
+  document.getElementById('view-list').addEventListener('click', () => {
+    currentView = 'list';
+    document.getElementById('view-list').classList.add('active');
+    document.getElementById('view-authors').classList.remove('active');
+    if (lastData.length) render(lastData, currentKws);
+  });
+
+  document.getElementById('view-authors').addEventListener('click', () => {
+    currentView = 'authors';
+    document.getElementById('view-authors').classList.add('active');
+    document.getElementById('view-list').classList.remove('active');
+    if (lastData.length) render(lastData, currentKws);
+  });
+
   document.getElementById('fetch-btn').addEventListener('click', fetchReddit);
   document.getElementById('export-btn').addEventListener('click', exportJSON);
-
   document.getElementById('keywords').addEventListener('keydown', e => {
     if (e.key === 'Enter') fetchReddit();
   });
