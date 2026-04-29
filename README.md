@@ -22,14 +22,15 @@ Les bouées dérivantes fournissent des info pour les prévisions météorologiq
 
 
   groupe incel reddit : https://www.reddit.com/r/IncelExit/
-  ya pas bcp de groupe ouvertement incel hors celui ci 
+  groupe askmec : 
+
   comment scraper le username et les infos d'un post qui aurait un mot clef particulier comme : déviant, dérive, seule, tempête, sous les flots, isolée, 
   garçon(boy) = en anglais si c'est sur incelExit 
 
 
-  rôle du l'utilisateur :
+ rôle du l'utilisateur :
 
-  banque de donnée de mots à choisir
+banque de mots à choisir
 comment relier les 2/ comment relier les informations :
 
 WMO number : j'ai accès à ces données pour les bouées en temps réel
@@ -38,7 +39,6 @@ peut-être le relier au WMO des comptes reddit, (mais j'ai besoin de la localisa
   carte bouée dérivantes françaises avec plus de données diff : https://esurfmar.meteo.fr/cgi-bin/blackpos_surfmar.cgi
 
   sinon la trajectoire --> mais comment suivre la trajectoire des compte sur reddit, trop d'information 
-
 
 
 
@@ -57,20 +57,16 @@ Drifter ID Card          Transmitting
   
   Boy type: 
   
-  Deployment: 
+  Deployment on:  (created_utc (àonvertir en heure locale))
   
-  Propeled/Dragged to shore: (Dans treatment_tags le nombre des ups) 
-  
-  
+  Propeled to shore: (Dans treatment_tags le nombre des ups) 
 
-  transmitting on the : (created_utc (à convertir en heure locale))
+  Data type: (title)
   
-  transmitters:   (num_comments)
+  transmitters: (num_comments)
 
-  
-  Missing Value 
-  
-  Range 
+
+
   
   
   
