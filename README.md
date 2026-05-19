@@ -95,8 +95,8 @@ Ouvrir dans un navigateur, entrer la clé, sélectionner une zone, cliquer **Con
 | Clé API | Clé aisstream.io (stockée localement) |
 | Zone | Preset géographique (voir ci-dessous) |
 | Vue carte | Utilise les limites visibles de la carte comme zone de réception |
-| ⚓ Balises | Active/désactive les balises AIS (type AtoN 21) |
-| ⛵ Navires | Active/désactive les navires (rapport de position) |
+| Balises | Active/désactive les balises AIS (type AtoN 21) |
+| Navires | Active/désactive les navires (rapport de position) |
 | Connecter | Ouvre / ferme la connexion WebSocket |
 
 #### Zones prédéfinies
@@ -114,14 +114,14 @@ Ouvrir dans un navigateur, entrer la clé, sélectionner une zone, cliquer **Con
 
 **Balises (AtoN type 21)**
 
-- ⚓ cercle **jaune** = fixe
-- ⚓ cercle **bleu** = mobile (dérive détectée)
-- ⚓ cercle **rouge** = hors position charté (`OffPosition = true`)
+-  cercle **jaune** = fixe
+-  cercle **bleu** = mobile (dérive détectée)
+-  cercle **rouge** = hors position charté (`OffPosition = true`)
 - Types couverts : bouées cardinales N/E/S/O, bouées bâbord/tribord, balises de danger isolé, eaux sûres, navires-feux, RACON…
 
 **Navires**
 
-- ▲ triangle orienté selon le cap réel (`TrueHeading`)
+-  triangle orienté selon le cap réel (`TrueHeading`)
 
 **Trajectoires**
 
