@@ -4,22 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reddit — Communauté</title>
+  <link rel="icon" type="image/png" href="favicon.png">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Courier New', monospace;
-      background: #0a0a0a;
-      color: #c8c8c8;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      color: #333333;
       min-height: 100vh;
-      padding: 2rem;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     h1 {
-      font-size: 0.85rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: #555;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #333333;
       margin-bottom: 2rem;
     }
 
@@ -31,16 +34,17 @@
     }
 
     input, select, button {
-      background: #111;
-      border: 1px solid #333;
-      color: #c8c8c8;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      color: #333333;
+      font-family: Arial, sans-serif;
+      font-size: 0.9rem;
       padding: 0.5rem 0.75rem;
       outline: none;
+      border-radius: 4px;
     }
 
-    input:focus, select:focus { border-color: #666; }
+    input:focus, select:focus { border-color: #999; background: #fafafa; }
 
     #subreddit { width: 180px; }
     #keywords  { flex: 1; min-width: 200px; }
@@ -49,17 +53,15 @@
 
     button {
       cursor: pointer;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      border-color: #555;
+      border-color: #ccc;
       transition: background 0.15s;
     }
-    button:hover { background: #1e1e1e; }
-    button:active { background: #252525; }
+    button:hover { background: #efefef; }
+    button:active { background: #e0e0e0; }
 
     #status {
-      font-size: 0.75rem;
-      color: #555;
+      font-size: 0.85rem;
+      color: #666;
       margin-bottom: 1.5rem;
       min-height: 1rem;
     }
@@ -67,35 +69,40 @@
     #results { display: flex; flex-direction: column; gap: 1.5rem; }
 
     .post {
-      border-left: 2px solid #2a2a2a;
+      border-left: 3px solid #ddd;
       padding-left: 1rem;
+      border-radius: 8px;
+      padding: 0.75rem;
+      padding-left: 1rem;
+      background: #fafafa;
     }
 
     .post-meta {
-      font-size: 0.7rem;
-      color: #444;
+      font-size: 0.75rem;
+      color: #666;
       margin-bottom: 0.35rem;
     }
 
-    .post-meta .author { color: #888; }
-    .post-meta .score  { color: #666; }
+    .post-meta .author { color: #555; }
+    .post-meta .score  { color: #777; }
 
     .post-title {
-      font-size: 0.9rem;
-      color: #e0e0e0;
+      font-size: 0.95rem;
+      color: #333333;
       margin-bottom: 0.4rem;
       line-height: 1.4;
+      font-weight: 500;
     }
 
     .post-title a {
-      color: inherit;
+      color: #0066cc;
       text-decoration: none;
     }
-    .post-title a:hover { color: #fff; }
+    .post-title a:hover { color: #0052a3; text-decoration: underline; }
 
     .post-body {
-      font-size: 0.8rem;
-      color: #888;
+      font-size: 0.85rem;
+      color: #555;
       line-height: 1.6;
       white-space: pre-wrap;
       max-height: 120px;
@@ -106,16 +113,16 @@
     .post-body.expanded { max-height: none; }
 
     .toggle-body {
-      font-size: 0.7rem;
-      color: #555;
+      font-size: 0.75rem;
+      color: #777;
       cursor: pointer;
       display: inline-block;
       margin-top: 0.3rem;
       user-select: none;
     }
-    .toggle-body:hover { color: #888; }
+    .toggle-body:hover { color: #555; }
 
-    .highlight { background: #2a2200; color: #f0c040; }
+    .highlight { background: #ffffcc; color: #333; }
 
     .export-btn {
       margin-top: 2rem;
@@ -131,18 +138,20 @@
       margin-bottom: 1.5rem;
     }
     .view-toggle button {
-      border-radius: 0;
+      border-radius: 4px;
       letter-spacing: 0.08em;
     }
     .view-toggle button.active {
-      background: #222;
-      border-color: #888;
+      background: #ff4500;
+      border-color: #ff4500;
       color: #fff;
     }
 
     .author-group {
-      border: 1px solid #1e1e1e;
+      border: 1px solid #ddd;
       margin-bottom: 1.5rem;
+      border-radius: 8px;
+      overflow: hidden;
     }
 
     .author-avatar {
@@ -174,35 +183,35 @@
       align-items: flex-start;
       gap: 0.75rem;
       padding: 0.75rem 1rem;
-      background: #0f0f0f;
+      background: #e8e8e8;
       cursor: pointer;
       user-select: none;
     }
-    .author-header:hover { background: #141414; }
+    .author-header:hover { background: #f0f0f0; }
 
     .author-name {
       font-size: 0.85rem;
-      color: #ccc;
+      color: #333;
       font-weight: bold;
       white-space: nowrap;
     }
 
     .author-info {
       font-size: 0.7rem;
-      color: #555;
+      color: #666;
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem 1rem;
       margin-top: 0.2rem;
     }
-    .author-info .karma { color: #7a7a7a; }
+    .author-info .karma { color: #777; }
     .author-info .age   { color: #666; }
     .author-info .loading { font-style: italic; }
 
     .author-post-count {
       margin-left: auto;
       font-size: 0.7rem;
-      color: #555;
+      color: #666;
       white-space: nowrap;
       padding-top: 0.2rem;
     }
@@ -216,17 +225,389 @@
     .author-posts.collapsed { display: none; }
 
     .author-posts .post {
-      border-left: 2px solid #222;
+      border-left: 2px solid #ddd;
       padding-left: 0.75rem;
       margin: 0;
     }
 
-    .collapse-icon { font-size: 0.65rem; color: #444; margin-top: 0.25rem; }
+    .collapse-icon { font-size: 0.65rem; color: #999; margin-top: 0.25rem; }
+
+    /* Barre de navigation */
+    .navbar {
+      background-color: #faf9f8;
+      border-bottom: 1px solid #ddd;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      height: 32px;
+      gap: 0;
+      flex-shrink: 0;
+      overflow-x: auto;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .navbar a {
+      padding: 0 10px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+      border-right: 1px solid #ddd;
+      transition: background-color 0.2s;
+      color: #333333;
+    }
+
+    .navbar a:first-child {
+      color: #ff4500;
+      font-weight: 700;
+    }
+
+    .navbar a:not(:first-child) {
+      color: #666666;
+    }
+
+    .navbar a:hover { background-color: #f0f0f0; }
+
+    .content {
+      padding: 2rem;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem 2rem;
+      border-top: 1px solid #ddd;
+      background: #fafafa;
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      position: relative;
+    }
+
+    .splashy-whale {
+      width: 60px;
+      height: auto;
+      opacity: 0.7;
+      transition: opacity 0.3s;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    footer:hover .splashy-whale {
+      opacity: 1;
+    }
+
+    .splashy-label {
+      font-size: 0.75rem;
+      color: #999;
+      margin-top: 0.5rem;
+    }
+
+    .splashy-modal {
+      display: none;
+      position: static;
+      background: white;
+      border-left: 1px solid #ddd;
+      padding: 0 1.5rem;
+      box-shadow: none;
+      z-index: 1000;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: #333;
+      flex: 1;
+      max-height: 100%;
+      overflow-y: auto;
+    }
+
+    .splashy-modal.active {
+      display: block;
+      animation: none;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .splashy-modal-close {
+      float: right;
+      cursor: pointer;
+      color: #999;
+      font-weight: bold;
+      font-size: 1.5rem;
+      line-height: 1;
+      margin-left: 1rem;
+    }
+
+    .splashy-modal-close:hover {
+      color: #333;
+    }
+
+    /* Cartes d'identité AhBoy Drifter ID */
+    .boy-id-card {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 1px solid #333;
+      padding: 2rem;
+      width: 90%;
+      max-width: 550px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      display: none;
+      font-family: "Times New Roman", serif;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      max-height: 90vh;
+      overflow: hidden;
+    }
+
+    .boy-id-card.active {
+      display: block;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -55%);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    .boy-id-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 3px solid #333;
+    }
+
+    .boy-id-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
+    .boy-id-status {
+      font-size: 0.95rem;
+      text-align: right;
+    }
+
+    .boy-id-close {
+      cursor: pointer;
+      font-size: 1.5rem;
+      color: #333;
+      font-weight: bold;
+      line-height: 1;
+      margin-left: auto;
+    }
+
+    .boy-id-close:hover {
+      color: #666;
+    }
+
+    .boy-id-field-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+      align-items: flex-end;
+    }
+
+    .boy-id-field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .boy-id-label {
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .boy-id-value {
+      border-bottom: 1px solid #333;
+      padding: 0.2rem 0.4rem 0;
+      min-height: 1.1rem;
+      font-size: 0.85rem;
+    }
+
+    .boy-id-value.multi-line {
+      min-height: 5rem;
+      white-space: normal;
+      word-wrap: break-word;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      -webkit-box-orient: vertical;
+    }
+
+    .boy-id-divider {
+      border-bottom: 2px solid #333;
+      margin: 0.75rem 0;
+    }
+
+    .boy-id-row-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .boy-id-col-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .boy-id-col-right {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .boy-id-section-title {
+      font-weight: bold;
+      margin: 1rem 0 0.5rem 0;
+      font-size: 0.95rem;
+    }
+
+    .boy-id-image-id {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      object-fit: contain;
+      margin: 1rem auto 0;
+      display: block;
+    }
+
+    .boy-id-card-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 1999;
+      display: none;
+    }
+
+    .boy-id-card-overlay.active {
+      display: block;
+    }
   </style>
 </head>
 <body>
 
-<h1>Reddit — Récupération de données communauté</h1>
+<!-- Boy ID Card Modal -->
+<div class="boy-id-card-overlay" id="boy-id-overlay"></div>
+<div class="boy-id-card" id="boy-id-card">
+  <div class="boy-id-header">
+    <div>
+      <div class="boy-id-title">B(u)oy Drifter ID</div>
+      <div class="boy-id-status" id="boy-id-status">Transmitting On: —</div>
+    </div>
+    <span class="boy-id-close" id="boy-id-close">✕</span>
+  </div>
+
+  <!-- Nom du Boy -->
+  <div class="boy-id-field-row">
+    <div class="boy-id-field">
+      <div class="boy-id-label">Boy Name</div>
+      <div class="boy-id-value" id="boy-id-name">—</div>
+    </div>
+  </div>
+
+  <!-- Row 1: Drifter ID, Date, Time, Latitude, Longitude -->
+  <div class="boy-id-field-row">
+    <div class="boy-id-field">
+      <div class="boy-id-label">Drifter ID #</div>
+      <div class="boy-id-value" id="boy-id-drifter-id">—</div>
+    </div>
+    <div class="boy-id-field">
+      <div class="boy-id-label">Date</div>
+      <div class="boy-id-value" id="boy-id-date">—</div>
+    </div>
+    <div class="boy-id-field">
+      <div class="boy-id-label">Time (GMT)</div>
+      <div class="boy-id-value" id="boy-id-time">—</div>
+    </div>
+    <div class="boy-id-field">
+      <div class="boy-id-label">Latitude</div>
+      <div class="boy-id-value" id="boy-id-latitude">—</div>
+    </div>
+    <div class="boy-id-field">
+      <div class="boy-id-label">Longitude</div>
+      <div class="boy-id-value" id="boy-id-longitude">—</div>
+    </div>
+  </div>
+
+  <div class="boy-id-divider"></div>
+
+  <!-- Row 2: Data Type (left), Answering Transmitters / Propelled to Shore / Deployment On (right column) -->
+  <div class="boy-id-row-two-col">
+    <div class="boy-id-col-left">
+      <div class="boy-id-field">
+        <div class="boy-id-label">Data Type</div>
+        <div class="boy-id-value" id="boy-id-data-type">—</div>
+      </div>
+    </div>
+    <div class="boy-id-col-right">
+      <div class="boy-id-field">
+        <div class="boy-id-label">Answering Transmitters</div>
+        <div class="boy-id-value" id="boy-id-transmitters">—</div>
+      </div>
+      <div class="boy-id-field">
+        <div class="boy-id-label">Propelled to Shore</div>
+        <div class="boy-id-value" id="boy-id-score">—</div>
+      </div>
+      <div class="boy-id-field">
+        <div class="boy-id-label">Boy Deployment On</div>
+        <div class="boy-id-value" id="boy-id-deployment">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image bas de l'ID.png en bas -->
+  <img src="bas de l'ID.png" alt="Buoy Drifter ID" class="boy-id-image-id">
+</div>
+
+<div class="navbar">
+    <a href="index.html">Drifting boys</a>
+    <a href="reddit-community.html">an EXIT-INCEL Reddit community</a>
+    <a href="javascript:void(0)">pression, sociale</a>
+    <a href="javascript:void(0)">bar en pascals,  <i> barùs </i> = lourd(eau)</a>
+    <a href="javascript:void(0)">vitesse de vents pris</a>
+    <a href="javascript:void(0)">surface, superfici(elle)</a>
+    <a href="javascript:void(0)">flux et fluides</a>
+    <a href="javascript:void(0)">zones non repertoriées, hors normes</a>
+    <a href="javascript:void(0)">trajectoires, prélever l'historique de posts</a>
+                             
+   
+</div>
+
+<div class="content">
+<h1>océan de subreddits — Récupération de données de <i> boys </i> dérivants</h1>
 
 <div class="controls">
   <input id="subreddit" type="text" value="IncelExit" placeholder="subreddit" />
@@ -243,15 +624,15 @@
 </div>
 
 <div class="view-toggle">
-  <button id="view-list" class="active">Liste</button>
-  <button id="view-authors">Par auteur</button>
+  <button id="view-list" class="active">rapports de différentes positions</button>
+  <button id="view-authors">par id</button>
 </div>
 
 <div id="status">—</div>
 <div id="results"></div>
 
 <script>
-  const PROXY = 'https://www.reddit.com';
+  const PROXY = 'http://localhost:3000/api/reddit';
 
   let lastData = [];
   let currentView = 'list'; // 'list' | 'authors'
@@ -288,8 +669,8 @@
     const body    = post.selftext || '';
     const hasBody = body.length > 0;
     return `
-      <div class="post-meta">
-        <span class="author">u/${escHtml(post.author)}</span>
+      <div class="post-meta" data-post-id="${post.id}" data-post-author="${escHtml(post.author)}" style="cursor: pointer;">
+        <span class="author" style="cursor: pointer; color: #0066cc; text-decoration: underline;">u/${escHtml(post.author)}</span>
         &nbsp;·&nbsp;${date}
         &nbsp;·&nbsp;<span class="score">↑ ${post.score}</span>
         &nbsp;·&nbsp;${post.num_comments} commentaires
@@ -333,6 +714,26 @@
       results.appendChild(el);
     });
     bindToggles(results, kws);
+    bindAuthorClicks(results, posts);
+  }
+
+  function bindAuthorClicks(container, posts) {
+    container.querySelectorAll('.post-meta').forEach(meta => {
+      const author = meta.dataset.postAuthor;
+      const postId = meta.dataset.postId;
+      const authorLink = meta.querySelector('.author');
+      
+      if (authorLink) {
+        authorLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const post = posts.find(p => p.author === author && p.id === postId);
+          if (post) {
+            showBoyIdCard(post);
+          }
+        });
+      }
+    });
   }
 
   // ── vue par auteur ─────────────────────────────────────────────
@@ -355,6 +756,56 @@
       const json = await res.json();
       return json?.data || null;
     } catch { return null; }
+  }
+
+  // Afficher la carte d'identité d'un auteur
+  function showBoyIdCard(post) {
+    const date = new Date(post.created_utc * 1000);
+    const dateStr = date.toLocaleDateString('fr-FR');
+    const timeGMT = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'GMT' });
+    
+    // Date et heure du clic (maintenant)
+    const now = new Date();
+    const clickDateStr = now.toLocaleDateString('fr-FR');
+    const clickTimeGMT = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'GMT' });
+    
+    // Remplir les champs
+    document.getElementById('boy-id-name').textContent = post.author;
+    document.getElementById('boy-id-drifter-id').textContent = post.id || '—';
+    document.getElementById('boy-id-date').textContent = dateStr;
+    document.getElementById('boy-id-time').textContent = timeGMT;
+    document.getElementById('boy-id-latitude').textContent = '—';
+    document.getElementById('boy-id-longitude').textContent = '—';
+    
+    // Data Type avec titre complet du post
+    const dataTypeEl = document.getElementById('boy-id-data-type');
+    dataTypeEl.textContent = post.title;
+    dataTypeEl.classList.add('multi-line');
+    
+    document.getElementById('boy-id-transmitters').textContent = post.num_comments.toString();
+    document.getElementById('boy-id-score').textContent = post.score.toString();
+    document.getElementById('boy-id-status').textContent = `Transmitting On: ${clickDateStr} ${clickTimeGMT}`;
+    
+    // Fetch user info pour Boy Deployment On (account creation date)
+    fetchAuthorInfo(post.author).then(userInfo => {
+      if (userInfo && userInfo.created_utc) {
+        const deployDate = new Date(userInfo.created_utc * 1000).toLocaleDateString('fr-FR');
+        document.getElementById('boy-id-deployment').textContent = deployDate;
+        
+        // Afficher Reddit user ID
+        if (userInfo.id) {
+          document.getElementById('boy-id-drifter-id').textContent = `t2_${userInfo.id}`;
+        }
+      }
+    });
+    
+    document.getElementById('boy-id-card').classList.add('active');
+    document.getElementById('boy-id-overlay').classList.add('active');
+  }
+
+  function closeBoyIdCard() {
+    document.getElementById('boy-id-card').classList.remove('active');
+    document.getElementById('boy-id-overlay').classList.remove('active');
   }
 
   function authorInfoHTML(info) {
@@ -406,6 +857,7 @@
         postsContainer.appendChild(el);
       });
       bindToggles(postsContainer, kws);
+      bindAuthorClicks(postsContainer, authorPosts);
 
       // collapse/expand au clic sur l'en-tête
       group.querySelector('.author-header').addEventListener('click', () => {
@@ -493,12 +945,20 @@
     const grouped = currentView === 'authors'
       ? Object.fromEntries(groupByAuthor(lastData))
       : lastData;
+    
+    // Sauvegarder dans localStorage pour index.html
+    localStorage.setItem('redditData', JSON.stringify(lastData));
+    console.log(`✓ ${lastData.length} posts sauvegardés dans le localStorage`);
+    
+    // Télécharger aussi le JSON
     const blob = new Blob([JSON.stringify(grouped, null, 2)], { type: 'application/json' });
     const a = Object.assign(document.createElement('a'), {
       href: URL.createObjectURL(blob),
       download: `reddit-${document.getElementById('subreddit').value}-${Date.now()}.json`
     });
     a.click();
+    
+    alert(`✓ Données sauvegardées !\n${lastData.length} posts sont maintenant disponibles sur index.html`);
   }
 
   // ── bascule de vue ─────────────────────────────────────────────
@@ -522,5 +982,48 @@
     if (e.key === 'Enter') fetchReddit();
   });
 </script>
+</div>
+
+<footer>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="Mr._Splashy_Pants.svg.png" alt="Mr. Splashy Pants" class="splashy-whale" id="splashy-trigger">
+    <div class="splashy-label">Mr. Splashy Pants</div>
+  </div>
+
+  <div class="splashy-modal" id="splashy-modal">
+    <span class="splashy-modal-close" id="splashy-close">&times;</span>
+    <p>Adopté par Greenpeace dans le cadre de son expédition Great Whale Trail de 2007, M. Splashy Pants est le nom choisi par un sondage Reddit d'une baleine à bosse suivie grâce à une balise satellite, à l'instar de bouées dérivantes. Cette baleine est rapidement devenue un mème, tout en dévoilant les "splash" sur les communautés, dérives d'influences et sondage faussé en détournant les cookies du site.</p>
+  </div>
+</footer>
+
+<script>
+  const splashyTrigger = document.getElementById('splashy-trigger');
+  const splashyModal = document.getElementById('splashy-modal');
+  const splashyClose = document.getElementById('splashy-close');
+
+  splashyTrigger.addEventListener('click', () => {
+    splashyModal.classList.toggle('active');
+  });
+
+  splashyClose.addEventListener('click', () => {
+    splashyModal.classList.remove('active');
+  });
+
+  // Fermer la modale en cliquant en dehors
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#splashy-trigger') && !e.target.closest('#splashy-modal')) {
+      splashyModal.classList.remove('active');
+    }
+  });
+
+  // Boy ID Card listeners
+  const boyIdClose = document.getElementById('boy-id-close');
+  const boyIdOverlay = document.getElementById('boy-id-overlay');
+  const boyIdCard = document.getElementById('boy-id-card');
+  
+  boyIdClose.addEventListener('click', closeBoyIdCard);
+  boyIdOverlay.addEventListener('click', closeBoyIdCard);
+</script>
+
 </body>
 </html>

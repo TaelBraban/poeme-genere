@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartes d'Identité — Garçons Dérivants</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #c8c8c8;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 0.85rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #555;
+            margin-bottom: 2rem;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        input, select, button {
+            background: #111;
+            border: 1px solid #333;
+            color: #c8c8c8;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            outline: none;
+        }
+
+        input:focus, select:focus { border-color: #666; }
+
+        #subreddit { width: 180px; }
+        #keywords  { flex: 1; min-width: 200px; }
+        #sort      { width: 130px; }
+        #limit     { width: 80px; }
+
+        button {
+            cursor: pointer;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-color: #555;
+            transition: background 0.15s;
+        }
+        button:hover { background: #1e1e1e; }
+        button:active { background: #252525; }
+
+        #status {
+            font-size: 0.75rem;
+            color: #555;
+            margin-bottom: 1.5rem;
+            min-height: 1rem;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .id-card {
+            background: #0f0f0f;
+            border: 1px solid #222;
+            padding: 1.5rem;
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            transition: border-color 0.3s;
+        }
+
+        .id-card:hover {
+            border-color: #444;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #222;
+            padding-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .avatar-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #1a1a1a;
+            border: 1px solid #333;
+        }
+
+        .avatar-placeholder {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #444;
+        }
+
+        .username {
+            font-size: 0.95rem;
+            color: #e0e0e0;
+            font-weight: bold;
+        }
+
+        .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .info-section {
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-value {
+            color: #b0b0b0;
+        }
+
+        .karma-badge {
+            display: inline-block;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+            color: #888;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+            color: #888;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-badge.premium {
+            color: #c8a030;
+            border-color: #444;
+        }
+
+        .post-preview {
+            background: #111;
+            border-left: 2px solid #222;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            color: #888;
+            line-height: 1.5;
+        }
+
+        .post-preview strong {
+            color: #b0b0b0;
+        }
+
+        .card-footer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #222;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #555;
+        }
+
+        .error {
+            color: #a04040;
+            font-size: 0.8rem;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Cartes d'Identité — Garçons Dérivants</h1>
+
+<div class="controls">
+    <input id="subreddit" type="text" value="IncelExit" placeholder="subreddit" />
+    <input id="keywords" type="text" value="alone, drift, storm, isolated, lonely, boy" placeholder="mots-clés (séparés par virgule)" />
+    <select id="sort">
+        <option value="new">nouveau</option>
+        <option value="hot">populaire</option>
+        <option value="top">top</option>
+        <option value="rising">montant</option>
+    </select>
+    <input id="limit" type="number" value="20" min="1" max="100" />
+    <button id="generate-btn">Générer</button>
+</div>
+
+<div id="status">—</div>
+<div class="cards-container" id="cards-container"></div>
+
+<script>
+    const PROXY = 'https://www.reddit.com';
+
+    function escHtml(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function escRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function keywords() {
+        return document.getElementById('keywords').value
+            .split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
+    }
+
+    function matchesKeywords(post, kws) {
+        if (!kws.length) return true;
+        const haystack = (post.title + ' ' + post.selftext).toLowerCase();
+        return kws.some(k => haystack.includes(k));
+    }
+
+    async function fetchAuthorInfo(username) {
+        try {
+            const res = await fetch(`${PROXY}/user/${encodeURIComponent(username)}/about.json?raw_json=1`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            if (!res.ok) return null;
+            const json = await res.json();
+            return json?.data || null;
+        } catch { return null; }
+    }
+
+    function groupByAuthor(posts) {
+        const map = new Map();
+        posts.forEach(p => {
+            if (!map.has(p.author)) map.set(p.author, []);
+            map.get(p.author).push(p);
+        });
+        return [...map.entries()].sort((a, b) => b[1].length - a[1].length);
+    }
+
+    async function generateCards() {
+        const sub = document.getElementById('subreddit').value.trim();
+        const sort = document.getElementById('sort').value;
+        const limit = Math.min(100, Math.max(1, +document.getElementById('limit').value));
+        const kws = keywords();
+
+        const status = document.getElementById('status');
+        const container = document.getElementById('cards-container');
+
+        status.textContent = 'Chargement…';
+        container.innerHTML = '';
+
+        const url = `${PROXY}/r/${encodeURIComponent(sub)}/${sort}.json?limit=${limit}&raw_json=1`;
+
+        let data;
+        try {
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            data = await res.json();
+        } catch (err) {
+            status.textContent = `Erreur : ${err.message}`;
+            status.className = 'error';
+            return;
+        }
+
+        const posts = (data?.data?.children || []).map(c => c.data);
+        const filtered = kws.length ? posts.filter(p => matchesKeywords(p, kws)) : posts;
+        const groups = groupByAuthor(filtered);
+
+        status.textContent = `${filtered.length} post(s) · ${groups.length} auteur(s) — r/${sub}`;
+
+        if (!groups.length) {
+            container.innerHTML = '<div class="loading">Aucun résultat</div>';
+            return;
+        }
+
+        for (const [author, authorPosts] of groups) {
+            const info = await fetchAuthorInfo(author);
+            const card = createIdCard(author, info, authorPosts);
+            container.appendChild(card);
+        }
+    }
+
+    function createIdCard(username, info, posts) {
+        const card = document.createElement('div');
+        card.className = 'id-card';
+
+        const avatar = info?.snoovatar_img || info?.icon_img || '';
+        const karma = (info?.link_karma || 0) + (info?.comment_karma || 0);
+        const created = info ? new Date(info.created_utc * 1000) : null;
+        const age = created ? Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24 * 365)) : null;
+        const since = created ? created.toISOString().slice(0, 7) : 'unknown';
+        const isPremium = info?.is_gold;
+
+        const topPost = posts.length > 0 ? posts[0] : null;
+        const topPostTitle = topPost ? topPost.title.slice(0, 80) : '—';
+
+        let avatarHtml = '';
+        if (avatar) {
+            avatarHtml = `<img src="${escHtml(avatar)}" alt="${escHtml(username)}" class="avatar" onerror="this.replaceWith(document.createElement('div')).classList.add('avatar-placeholder'); this.textContent='◉';">`;
+        } else {
+            avatarHtml = '<div class="avatar-placeholder">◉</div>';
+        }
+
+        card.innerHTML = `
+            <div class="card-header">
+                <div class="card-title">Profil Utilisateur</div>
+                <div class="avatar-container">${avatarHtml}</div>
+                <div class="username">u/${escHtml(username)}</div>
+            </div>
+
+            <div class="card-body">
+                <div class="info-section">
+                    <div class="info-label">Karmatique</div>
+                    <div class="info-value">${karma.toLocaleString('fr')} points</div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-label">Ancienneté</div>
+                    <div class="info-value">depuis ${since} (${age !== null ? age + ' an' + (age > 1 ? 's' : '') : 'N/A'})</div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-label">Activité</div>
+                    <div class="info-value">${posts.length} post${posts.length > 1 ? 's' : ''} trouvé${posts.length > 1 ? 's' : ''}</div>
+                </div>
+
+                ${isPremium ? '<div class="status-badge premium">✦ Premium</div>' : ''}
+
+                ${topPost ? `
+                    <div class="info-section">
+                        <div class="info-label">Récent</div>
+                        <div class="post-preview"><strong>${escHtml(topPostTitle)}</strong></div>
+                    </div>
+                ` : ''}
+            </div>
+
+            <div class="card-footer">
+                <a href="https://www.reddit.com/user/${escHtml(username)}" target="_blank" style="color:#666; text-decoration:none;">↗ Profil</a>
+            </div>
+        `;
+
+        return card;
+    }
+
+    document.getElementById('generate-btn').addEventListener('click', generateCards);
+    document.getElementById('keywords').addEventListener('keydown', e => {
+        if (e.key === 'Enter') generateCards();
+    });
+</script>
+
+</body>
+</html>

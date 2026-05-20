@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garçons Dérivants</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+
+        /* Les bouées dérivantes sont usuellement munies d'une ancre flottante qui 
+        oppose une résistance dans l'eau, ce qui les ralentit et leur permet de dériver. 
+        L'ancre flottante est liée à la bouée par un long câble et reste à la traine derrière
+        celle-ci. Les boys dérivants, ces garçons entrainés loin des eaux communes, 
+        semblent avoir rompus leur câble les reliant à leur ancre stabilisante. 
+        Les liens de la barre de navigation de ma page ne renvoient ainsi à rien. 
+        Ils ont des href="#..." qui pointent vers des ancres inexistantes. 
+        Le navigateur essaie de naviguer vers ces ancres mais elles n'existent pas, 
+        nous sommes renvoyés de manière hasardeuse, à l'instar des bouteilles à la mer, les posts sur reddit publiés 
+        sans destinataires précis, données de bouées qui signalent leurs informations et données personnelles et continuent
+        de dériver selon les flux.*/
+
+        body {
+            background-image: url('Capture d\'écran 2026-05-08 183935.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        /* Barre de navigation - MODIFIEZ LES MOTS DANS LE HTML CI-DESSOUS */
+        .navbar {
+            background-color: #faf9f8;
+            border-bottom: 1px solid #ddd;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            height: 32px;
+            gap: 0;
+            flex-shrink: 0;
+            overflow-x: auto;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .navbar a {
+            padding: 0 10px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+            border-right: 1px solid #ddd;
+            transition: background-color 0.2s;
+        }
+
+        .navbar a:first-child {
+            color: #ff4500;
+            font-weight: 700;
+        }
+
+        .navbar a:not(:first-child) {
+            color: #818384;
+        }
+
+        .navbar a:hover:not(:first-child) {
+            background-color: #e8e6e3;
+            color: #303030;
+        }
+
+        .navbar a:last-child {
+            border-right: none;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            width: 100%;
+        }
+
+        .left-panel {
+            width: 200px;
+            background: rgba(0, 0, 0, 0.7);
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            border-right: 1px solid #333;
+            transition: opacity 0.3s;
+            opacity: 0;
+            display: none;
+        }
+
+        body:hover .left-panel {
+            opacity: 1;
+        }
+
+        .keywords-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .keyword-btn {
+            background: #222;
+            border: 1px solid #444;
+            color: #999;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .keyword-btn:hover {
+            background: #333;
+            color: #ccc;
+            border-color: #666;
+        }
+
+        .keyword-btn.active {
+            background: #444;
+            color: #fff;
+            border-color: #888;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .identity-card {
+            background: #333;
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            border: 1px solid #555;
+            color: #ccc;
+            display: none;
+        }
+
+        .identity-card.active {
+            display: block;
+        }
+
+        .card-field {
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .card-label {
+            color: #999;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+
+        .card-value {
+            color: #ddd;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .status-message {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ffffff;
+            color: #666;
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
+            font-family: Arial, sans-serif;
+            border: none;
+            max-width: 300px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .status-message.loading {
+            color: #999;
+        }
+
+        .status-message.ready {
+            color: #2d8a2d;
+        }
+
+        .status-message.error {
+            color: #d32f2f;
+        }
+
+        .coordinates {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #666;
+            font-family: Arial, sans-serif;
+            letter-spacing: 0.05em;
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .coordinates div {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- BARRE DE NAVIGATION - MODIFIEZ LES MOTS ICI -->
+    <div class="navbar">
+        <a href="#Drifting boys">Drifting boys</a>
+        <a href="reddit-community.html">an EXIT-INCEL Reddit community</a>
+        <a href="javascript:void(0)">déviant</a>
+        <a href="javascript:void(0)">à la dérive</a>
+        <a href="javascript:void(0)">isolés</a>
+        <a href="javascript:void(0)">seuls</a>
+        <a href="javascript:void(0)">sous les flots</a>
+        <a href="javascript:void(0)">vague de haine</a>
+        <a href="javascript:void(0)">suivre les courants et schémas de dérives</a>
+        <a href="javascript:void(0)">transmettant</a>
+        <a href="javascript:void(0)">flux RSS, ou</a>
+        <a href="javascript:void(0)">lancer une bouteille à la mer,</a>
+        <a href="javascript:void(0)">un appel à l'aide</a>
+    </div>
+
+    <div class="main-content">
+    <div class="left-panel">
+        <div class="keywords-list" id="keywordsList"></div>
+    </div>
+
+    <div class="right-panel">
+        <div class="identity-card" id="identityCard">
+            <div class="card-field">
+                <div class="card-label">Boy id :</div>
+                <div class="card-value" id="boyId">—</div>
+            </div>
+            <div class="card-field">
+                <div class="card-label">Boy name :</div>
+                <div class="card-value" id="boyName">—</div>
+            </div>
+            <div class="card-field">
+                <div class="card-label">Deployment on :</div>
+                <div class="card-value" id="deploymentOn">—</div>
+            </div>
+            <div class="card-field">
+                <div class="card-label">Propeled to shore :</div>
+                <div class="card-value" id="propelledToShore">—</div>
+            </div>
+            <div class="card-field">
+                <div class="card-label">Data type :</div>
+                <div class="card-value" id="dataType">—</div>
+            </div>
+            <div class="card-field">
+                <div class="card-label">Transmitters :</div>
+                <div class="card-value" id="transmitters">—</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-message" id="statusMessage">Chargement des données...</div>
+
+    <div class="coordinates" id="coordinates">
+        <div>lat: 0.0000</div>
+        <div>lon: 0.0000</div>
+    </div>
+
+    <script>
+        const keywords = ['alone', 'drift', 'storm', 'isolated', 'lonely', 'boy', 'vague', 'l\'horizon', 'floating'];
+        
+        let allPosts = [];
+        let postsByKeyword = {};
+        let drifters = []; // Données des drifters NOAA
+
+        function updateStatus(message, type = 'loading') {
+            const el = document.getElementById('statusMessage');
+            el.textContent = message;
+            el.className = `status-message ${type}`;
+        }
+
+        // Initialiser les mots-clés dans le panneau gauche
+        function initializeKeywords() {
+            const keywordsList = document.getElementById('keywordsList');
+            keywords.forEach(keyword => {
+                const btn = document.createElement('button');
+                btn.className = 'keyword-btn';
+                btn.textContent = keyword;
+                btn.addEventListener('click', () => selectKeyword(keyword, btn));
+                keywordsList.appendChild(btn);
+            });
+        }
+
+        // Charger les données depuis localStorage
+        function loadDataFromStorage() {
+            console.log('Tentative de chargement depuis localStorage...');
+            const stored = localStorage.getItem('redditData');
+            if (stored) {
+                try {
+                    const data = JSON.parse(stored);
+                    console.log('Données trouvées dans le stockage local');
+                    return Array.isArray(data) ? data : [];
+                } catch (err) {
+                    console.error('Erreur lors du parsing des données stockées:', err);
+                    return [];
+                }
+            }
+            console.log('Aucune donnée dans le stockage local');
+            return [];
+        }
+
+        // Organiser les posts par mots-clés
+        function organizePostsByKeywords(posts) {
+            console.log(`Organisation de ${posts.length} posts par mots-clés`);
+            keywords.forEach(keyword => {
+                postsByKeyword[keyword] = posts.filter(post => {
+                    const haystack = ((post.title || '') + ' ' + (post.selftext || '')).toLowerCase();
+                    return haystack.includes(keyword.toLowerCase());
+                });
+                console.log(`Posts avec "${keyword}": ${postsByKeyword[keyword].length}`);
+            });
+        }
+
+        // Afficher la carte d'identité (Reddit)
+        function selectKeyword(keyword, button) {
+            console.log('Mot-clé sélectionné:', keyword);
+            
+            document.querySelectorAll('.keyword-btn').forEach(b => b.classList.remove('active'));
+            button.classList.add('active');
+
+            const posts = postsByKeyword[keyword];
+            
+            if (!posts || posts.length === 0) {
+                console.log('Aucun post trouvé pour ce mot-clé');
+                document.getElementById('identityCard').classList.remove('active');
+                updateStatus(`Aucun post avec "${keyword}"`, 'error');
+                return;
+            }
+
+            // Prendre le premier post
+            const post = posts[0];
+            console.log('Post sélectionné:', post);
+            
+            // Convertir created_utc en heure locale
+            const date = new Date(post.created_utc * 1000);
+            const deploymentDate = date.toLocaleString('fr-FR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            // Remplir la carte
+            document.getElementById('boyId').textContent = post.id || '—';
+            document.getElementById('boyName').textContent = post.author || '—';
+            document.getElementById('deploymentOn').textContent = deploymentDate;
+            document.getElementById('propelledToShore').textContent = post.score || '0';
+            document.getElementById('dataType').textContent = post.title || '—';
+            document.getElementById('transmitters').textContent = post.num_comments || '0';
+
+            document.getElementById('identityCard').classList.add('active');
+            updateStatus(`${posts.length} post(s) avec "${keyword}"`, 'ready');
+        }
+
+        // Charger les données des drifters NOAA
+        async function loadDrifters() {
+            console.log('Chargement des données des drifters NOAA depuis le serveur backend...');
+            try {
+                const res = await fetch('http://localhost:3000/api/drifters');
+
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+                }
+
+                const data = await res.json();
+
+                if (data.success && data.drifters && data.drifters.length > 0) {
+                    drifters = data.drifters;
+                    console.log(`✓ ${drifters.length} drifters chargés depuis le backend`);
+                    updateStatus(`${drifters.length} drifters NOAA en temps réel chargés. Cliquez n'importe où.`, 'ready');
+                    return;
+                }
+
+                throw new Error('Pas de données de drifters reçues du serveur');
+
+            } catch (err) {
+                console.error('Erreur lors du chargement du backend:', err);
+                console.log('Les données NOAA en temps réel ne sont pas disponibles.');
+                updateStatus('Données NOAA indisponibles - essayez de rafraîchir la page', 'error');
+                
+                // Sans fallback de démo - attendez les vraies données
+                drifters = [];
+            }
+        }
+
+        // Calculer la distance entre deux coordonnées (formule de Haversine)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Rayon terrestre en km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Afficher la bouée la plus proche
+        function showNearestDrifter(lat, lon) {
+            if (drifters.length === 0) {
+                console.log('Aucun drifter disponible');
+                return;
+            }
+
+            console.log(`Recherche de drifter proche de lat: ${lat.toFixed(4)}, lon: ${lon.toFixed(4)}`);
+            console.log(`Total de drifters disponibles: ${drifters.length}`);
+
+            let nearest = drifters[0];
+            let minDistance = calculateDistance(lat, lon, nearest.latitude, nearest.longitude);
+            console.log(`Drifter 0: ${nearest.id} à distance ${minDistance.toFixed(2)} km`);
+
+            for (let i = 1; i < drifters.length; i++) {
+                const distance = calculateDistance(lat, lon, drifters[i].latitude, drifters[i].longitude);
+                console.log(`Drifter ${i}: ${drifters[i].id} à distance ${distance.toFixed(2)} km`);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearest = drifters[i];
+                }
+            }
+
+            console.log('✓ Drifter le plus proche trouvé:', nearest.id, 'Distance:', minDistance.toFixed(2), 'km');
+
+            // Créer/afficher la bulle d'information
+            let bubble = document.getElementById('drifterBubble');
+            if (!bubble) {
+                bubble = document.createElement('div');
+                bubble.id = 'drifterBubble';
+                bubble.style.cssText = `
+                    position: fixed;
+                    background: #ffffff;
+                    border: none;
+                    color: #666;
+                    padding: 1rem;
+                    font-family: Arial, sans-serif;
+                    font-size: 0.8rem;
+                    z-index: 1000;
+                    max-width: 250px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                `;
+                document.body.appendChild(bubble);
+            }
+
+            const deployDate = nearest.deploymentDate || new Date(nearest.time).toLocaleString('fr-FR');
+            bubble.innerHTML = `
+                <div style="color: #999; margin-bottom: 0.5rem; font-weight: bold;">Drifter Buoy</div>
+                <div style="color: #555;"><strong>ID :</strong> ${nearest.id}</div>
+                <div style="color: #555;"><strong>WMO ID :</strong> ${nearest.wmo_id}</div>
+                <div style="margin-top: 0.5rem; color: #888; font-size: 0.7rem;">
+                    Distance: ${minDistance.toFixed(1)} km<br>
+                    Lat: ${nearest.latitude.toFixed(4)}<br>
+                    Lon: ${nearest.longitude.toFixed(4)}
+                </div>
+            `;
+
+            bubble.style.left = (event.clientX + 10) + 'px';
+            bubble.style.top = (event.clientY + 10) + 'px';
+        }
+
+        // Initialisation
+        function init() {
+            console.log('Initialisation...');
+            initializeKeywords();
+
+            const posts = loadDataFromStorage();
+            
+            if (posts.length > 0) {
+                allPosts = posts;
+                organizePostsByKeywords(posts);
+                console.log('Prêt ! Survolez la gauche et cliquez sur un mot-clé');
+            } else {
+                console.log('⚠ Aucune donnée Reddit. Utilisez reddit-community.html d\'abord');
+            }
+
+            // Charger les drifters NOAA
+            loadDrifters();
+        }
+
+        init();
+
+        // Suivi du curseur pour latitude/longitude
+        document.addEventListener('mousemove', (e) => {
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            // Convertir la position du curseur en coordonnées (-90 à 90 pour lat, -180 à 180 pour lon)
+            const latitude = ((e.clientY / windowHeight) * 180 - 90).toFixed(4);
+            const longitude = ((e.clientX / windowWidth) * 360 - 180).toFixed(4);
+            
+            const coordEl = document.getElementById('coordinates');
+            coordEl.innerHTML = `<div>lat: ${latitude}</div><div>lon: ${longitude}</div>`;
+        });
+
+        // Au clic, afficher le drifter le plus proche
+        document.addEventListener('click', (e) => {
+            // Ignorer les clics sur la barre de navigation SAUF sur les liens (qui doivent rester cliquables)
+            if (e.target.closest('.navbar') && !e.target.closest('a')) {
+                return;
+            }
+            
+            // Si c'est un lien, le laisser faire son action naturelle
+            if (e.target.closest('a')) {
+                return;
+            }
+
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            // Convertir la position du clic en coordonnées réelles
+            const latitude = ((e.clientY / windowHeight) * 180 - 90);
+            const longitude = ((e.clientX / windowWidth) * 360 - 180);
+            
+            console.log(`Clic à lat: ${latitude.toFixed(4)}, lon: ${longitude.toFixed(4)}`);
+            showNearestDrifter(latitude, longitude);
+        });
+    </script>
+    </div> <!-- Fermeture de main-content -->
+</body>
+</html>
